@@ -25,7 +25,7 @@ function VideoCall() {
       setRemoteUsers((prevUsers) => [...prevUsers, user]);
     } catch (apiError) {
       console.error('Error handling user published:', apiError);
-      setError(apiError.response?.data?.error || 'Failed to handle user published.');
+      setError('Failed to handle user published.');
     }
   }, []);
 
@@ -39,25 +39,44 @@ function VideoCall() {
 
     const startVideoCall = async () => {
       try {
-        const tokenResponse = await axios.get(
-          `${import.meta.env.VITE_API_BASE_URL}/video-token?channelName=${channelName}&uid=${uid}`
-        );
-        console.log(tokenResponse)
-        const agoratoken = tokenResponse.data.token;
-       console.log(agoratoken)
-        if (!agoratoken) {
-          setError('Invalid token.');
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          setError('Your browser does not support media devices.');
           setLoading(false);
           return;
         }
 
-        const [audioTrack, videoTrack] = await AgoraRTC.createMicrophoneAndCameraTracks();
+        const tokenResponse = await axios.get(
+          `${import.meta.env.VITE_API_BASE_URL}/video-token?channelName=${channelName}&uid=${uid}`
+        );
+        const agoratoken = tokenResponse.data.token;
+
+        if (!agoratoken) {
+          setError('Invalid token received from server.');
+          setLoading(false);
+          return;
+        }
+
+        let audioTrack, videoTrack;
+        try {
+          [audioTrack, videoTrack] = await AgoraRTC.createMicrophoneAndCameraTracks();
+        } catch (err) {
+          console.error('Permission error:', err);
+          if (err.name === 'NotAllowedError' || err.message.includes('Permission denied')) {
+            setError(
+              '🎙️ Please allow access to your camera and microphone.\n\n👉 Tip: If you blocked it earlier, go to browser > Site settings > Permissions > Allow mic & camera for this site.'
+            );
+          } else {
+            setError('Could not access microphone or camera.');
+          }
+          setLoading(false);
+          return;
+        }
 
         if (!mounted) return;
 
         tracksRef.current = { audio: audioTrack, video: videoTrack };
 
-        await client.join(import.meta.env.VITE_AGORA_APP_ID, channelName, agoratoken);
+        await client.join(import.meta.env.VITE_AGORA_APP_ID, channelName, agoratoken, parseInt(uid));
         await client.publish([audioTrack, videoTrack]);
 
         if (localVideoRef.current) {
@@ -70,7 +89,7 @@ function VideoCall() {
         setLoading(false);
       } catch (apiError) {
         console.error('Error starting video call:', apiError);
-        setError(apiError.response?.data?.error || 'Failed to start video call.');
+        setError('Failed to start video call. Please check your network and try again.');
         setLoading(false);
       }
     };
@@ -97,7 +116,6 @@ function VideoCall() {
           setRemoteUsers([]);
         } catch (apiError) {
           console.error('Cleanup error:', apiError);
-          setError(apiError.response?.data?.error || 'Failed to cleanup video call.');
         }
       };
       cleanup();
@@ -105,11 +123,15 @@ function VideoCall() {
   }, [channelName, uid, handleUserPublished, handleUserUnpublished]);
 
   if (loading) {
-    return <div className="p-4">Loading...</div>;
+    return <div className="p-4">Loading video call...</div>;
   }
 
   if (error) {
-    return <div className="p-4 text-red-500">{error}</div>;
+    return (
+      <div className="p-4 text-red-600 bg-yellow-100 rounded whitespace-pre-wrap">
+        {error}
+      </div>
+    );
   }
 
   return (
@@ -125,7 +147,10 @@ function VideoCall() {
 
         {remoteUsers.map((user) => (
           <div key={user.uid} className="relative">
-            <div ref={(el) => (remoteVideoRefs.current[user.uid] = el)} className="w-64 h-48 bg-black rounded-lg"></div>
+            <div
+              ref={(el) => (remoteVideoRefs.current[user.uid] = el)}
+              className="w-64 h-48 bg-black rounded-lg"
+            ></div>
             <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded">
               User {user.uid}
             </div>
@@ -137,3 +162,4 @@ function VideoCall() {
 }
 
 export default VideoCall;
+

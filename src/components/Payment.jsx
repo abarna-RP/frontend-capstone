@@ -1,21 +1,21 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-
-function Payment({ client, counselor, amount, token, apiBaseUrl }) {
+import { useParams } from 'react-router-dom';
+function Payment({   token, setError, clientId, counselorId  }) {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
+  const [paymentError, setPaymentError] = useState(null);
+  const { amount } = useParams();
   const handlePayment = async (event) => {
     event.preventDefault();
     setLoading(true);
-    setError(null);
+    setPaymentError(null);
 
     try {
-      const apiUrl = `${apiBaseUrl}/payments/checkout`; // Use /payments/checkout endpoint
+      const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/payments/checkout`; // Use /payments/checkout endpoint
 
       const response = await axios.post(apiUrl, {
-        client: client,
-        counselor: counselor,
+        client: clientId,
+        counselor: counselorId,
         amount: amount,
         paymentMethod: 'Credit Card',
       }, {
@@ -29,19 +29,23 @@ function Payment({ client, counselor, amount, token, apiBaseUrl }) {
 
     } catch (err) {
       console.error(err);
-      setError('Payment failed. Please try again.');
+      let errorMessage = 'Payment failed. Please try again.';
+      if (err.response && err.response.data && err.response.data.message) {
+          errorMessage = err.response.data.message;
+      }
+      setPaymentError(errorMessage);
+      setError(errorMessage);
       setLoading(false);
-    } finally {
+  } finally {
       setLoading(false);
-    }
-  };
-
+  }
+};
   if (loading) {
     return <div>Loading...</div>;
   }
 
-  if (error) {
-    return <div style={{ color: 'red' }}>{error}</div>;
+  if (paymentError) { // Check local error state
+    return <div style={{ color: 'red' }}>{paymentError}</div>;
   }
 
   return (
