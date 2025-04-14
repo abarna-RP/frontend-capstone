@@ -8,11 +8,12 @@ function Client() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  // console.log(appointments)
   useEffect(() => {
     const fetchCounselors = async () => {
       try {
         const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/counselors`);
+        console.log(response.data);
         setCounselors(response.data);
       } catch (apiError) {
         console.error('Error fetching counselors:', apiError);
@@ -34,6 +35,7 @@ function Client() {
         const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/appointments/client/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
+        console.log(response.data)
         setAppointments(response.data);
       } catch (apiError) {
         console.error('Error fetching appointments:', apiError);
@@ -77,7 +79,7 @@ function Client() {
             <p>Counselor: {appointment.counselor.name}</p>
             <p>Date: {new Date(appointment.date).toLocaleString()}</p>
             <p>Session Type: {appointment.sessionType}</p>
-            <button onClick={() => navigate(`/payment/${appointment._id}/${appointment.counselor.sessionRate}`)} className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Pay</button>
+            <button onClick={() => navigate(`/payment/${appointment.client}/${appointment.counselor.sessionRate}/${appointment.counselor._id}`)} className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Pay</button>
             <button onClick={() => navigate(`/video-call/${appointment._id}/${localStorage.getItem('userId')}`)} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Join Video Call</button>
           </div>
         ))
