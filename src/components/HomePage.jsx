@@ -24,8 +24,8 @@ function HomePage() {
               support you need.
             </p>
             <div className="d-grid gap-3 d-sm-flex justify-content-sm-center">
-              <Link to="/login" className="btn btn-primary btn-lg px-4 gap-3">Login</Link>
-              <Link to="/register" className="btn btn-outline-secondary btn-lg px-4">Register</Link>
+              <Link to="/login" className="btn btn-success btn-lg px-4 gap-3">Login</Link>
+              <Link to="/register" className="btn btn-info btn-lg px-4">Register</Link>
             </div>
             <div className="mt-4">
               <p className="text-muted">

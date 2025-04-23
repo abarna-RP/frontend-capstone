@@ -62,8 +62,12 @@ function Register() {
       }
 
       const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/register`, data);
-      setSuccessMessage('Registration successful! Redirecting to login...');
-      setTimeout(() => navigate('/login'), 2000);
+      if (response.status === 201) {
+        setSuccessMessage('Registration successful! Redirecting to login...');
+        setTimeout(() => navigate('/login'), 2000);
+      } else {
+        setError(response.data?.error || 'Registration failed. Please try again.');
+      }
     } catch (apiError) {
       console.error('Registration failed:', apiError);
       setError(apiError.response?.data?.error || 'Registration failed. Please try again.');

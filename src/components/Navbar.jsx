@@ -22,7 +22,7 @@ function Navbar({ isAuthenticated, username, setIsAuthenticated }) {
       }}
     >
       <div className="container">
-        <Link className="navbar-brand text-white fw-bold" to="/">Counseling Platform</Link>
+        <Link className="navbar-brand text-white fw-bold" to="/">COUNSELING PLATFORM</Link>
         <button
           className="navbar-toggler"
           type="button"
@@ -61,7 +61,7 @@ function Navbar({ isAuthenticated, username, setIsAuthenticated }) {
                 </li>
                 <li className="nav-item">
                   <button
-                    className="btn btn-outline-light"
+                    className="btn btn-success"
                     onClick={handleLogout}
                   >
                     Logout

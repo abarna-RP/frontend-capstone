@@ -14,6 +14,7 @@ import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Logout from "./components/Logout";
 
 // Stripe setup
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_KEY);
@@ -24,21 +25,22 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [role, setRole] = useState(null);
   const [jwtToken, setJwtToken] = useState(null);
-
+  const [username, setUsername] = useState(null);
   useEffect(() => {
     // Check for JWT token and set state accordingly
     const token = localStorage.getItem("token");
     const userRole = localStorage.getItem("role");
-    const username = localStorage.getItem("username");
+    const storedUsername = localStorage.getItem("username");
 
-    if (token && userRole && username) {
+    if (token && userRole && storedUsername) {
       setIsAuthenticated(true);
       setRole(userRole);
       setJwtToken(token);
+      setUsername(storedUsername);
     }
 
     setLoading(false);
-  }, []);
+  }, [username]); // 
 
   // Protected route wrapper for role-based access
   const ProtectedRoute = ({ children, requiredRole }) => {
@@ -60,13 +62,14 @@ function App() {
 
   return (
     <Router>
-      <Navbar />
+      <Navbar isAuthenticated={isAuthenticated} username={username}  setIsAuthenticated={setIsAuthenticated} />
       <ToastContainer position="top-right" autoClose={3000} />
       <div className="container mt-4">
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/logout" element={<Logout />} />
           <Route
             path="/counselor"
             element={
@@ -116,6 +119,7 @@ function App() {
             }
           />
         </Routes>
+
       </div>
     </Router>
   );
