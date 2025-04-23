@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Route, Routes, Navigate, useParams } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import HomePage from "./components/HomePage";
 import Login from "./components/Login";
 import Register from "./components/Register";
@@ -8,9 +8,14 @@ import Client from "./components/Client";
 import Appointment from "./components/Appointment";
 import Payment from "./components/Payment";
 import VideoCall from "./components/VideoCall";
+import AppointmentsList from "./components/AppointmentsList";
+import Navbar from "./components/Navbar";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
+// Stripe setup
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_KEY);
 
 function App() {
@@ -21,10 +26,12 @@ function App() {
   const [jwtToken, setJwtToken] = useState(null);
 
   useEffect(() => {
+    // Check for JWT token and set state accordingly
     const token = localStorage.getItem("token");
     const userRole = localStorage.getItem("role");
+    const username = localStorage.getItem("username");
 
-    if (token && userRole) {
+    if (token && userRole && username) {
       setIsAuthenticated(true);
       setRole(userRole);
       setJwtToken(token);
@@ -33,79 +40,83 @@ function App() {
     setLoading(false);
   }, []);
 
+  // Protected route wrapper for role-based access
   const ProtectedRoute = ({ children, requiredRole }) => {
-    if (loading) return <div>Loading...</div>;
-    if (error) return <div className="text-red-500">{error}</div>;
+    if (loading) {
+      return (
+        <div className="d-flex justify-content-center mt-5">
+          <div className="spinner-border"></div>
+        </div>
+      );
+    }
+    if (error) return <div className="alert alert-danger">{error}</div>;
 
+    // Role-based route protection
     if (!isAuthenticated) return <Navigate to="/login" />;
     if (requiredRole && role !== requiredRole) return <Navigate to="/login" />;
 
     return children;
   };
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return <div className="text-red-500">{error}</div>;
-  }
-
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route
-          path="/counselor"
-          element={
-            <ProtectedRoute requiredRole="counselor">
-              <Counselor />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/client"
-          element={
-            <ProtectedRoute requiredRole="client">
-              <Client />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/appointment-booking/:counselorId"
-          element={
-            <ProtectedRoute requiredRole="client">
-              <Appointment />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/payment/:appointmentId/:amount/:counselorId" 
-          element={
-            <Elements stripe={stripePromise}>
-              <Payment
-                token={jwtToken}
-                apiBaseUrl={import.meta.env.VITE_API_BASE_URL}
-                setError={setError}
-                clientId={localStorage.getItem("clientId")} 
-                counselorId={localStorage.getItem("counselorId")} 
-              />
-            </Elements>
-          }
-        />
-
-
-        <Route
-          path="/video-call/:channelName/:uid"
-          element={
-            <ProtectedRoute>
-              <VideoCall />
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
+      <Navbar />
+      <ToastContainer position="top-right" autoClose={3000} />
+      <div className="container mt-4">
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route
+            path="/counselor"
+            element={
+              <ProtectedRoute requiredRole="counselor">
+                <Counselor />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/client"
+            element={
+              <ProtectedRoute requiredRole="client">
+                <Client />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/appointments"
+            element={
+              <ProtectedRoute>
+                <AppointmentsList />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/appointment-booking/:counselorId"
+            element={
+              <ProtectedRoute requiredRole="client">
+                <Appointment />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/payment/:appointmentId/:amount/:counselorId"
+            element={
+              <Elements stripe={stripePromise}>
+                <Payment token={jwtToken} setError={setError} />
+              </Elements>
+            }
+          />
+          <Route
+            path="/video-call/:channelName/:uid"
+            element={
+              <ProtectedRoute>
+                <VideoCall />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </div>
     </Router>
   );
 }

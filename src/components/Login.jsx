@@ -14,21 +14,39 @@ function Login() {
     setError(null);
     setLoading(true);
 
-    if (!email || !password) {
+    const trimmedEmail = email.trim();
+    const trimmedPassword = password.trim();
+
+    // Basic email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(trimmedEmail)) {
+      setError('Please enter a valid email address.');
+      setLoading(false);
+      return;
+    }
+
+    if (!trimmedEmail || !trimmedPassword) {
       setError('Please enter email and password.');
       setLoading(false);
       return;
     }
 
     try {
-      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/login`, { email, password });
-      console.log(response)
+      console.log("Sending login data:", { email: trimmedEmail, password: trimmedPassword });
+
+      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/login`, {
+        email: trimmedEmail,
+        password: trimmedPassword
+      });
+
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('role', response.data.role);
       localStorage.setItem('userId', response.data.userId);
-      navigate(response.data.role === 'counselor' ? '/counselor' : '/client');
+      localStorage.setItem('username', response.data.username);
+
+      navigate('/' + response.data.role);
     } catch (apiError) {
-      console.error('Login failed:', apiError);
+      console.error('Login failed:', apiError.response?.data);
       setError(apiError.response?.data?.error || 'Login failed. Please try again.');
     } finally {
       setLoading(false);
@@ -36,32 +54,65 @@ function Login() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col items-center justify-center h-screen">
-      {error && <p className="text-red-500">{error}</p>}
-      {loading && <p>Loading...</p>}
-      <label htmlFor="email">Email:</label>
-      <input
-        type="email"
-        id="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        placeholder="Email"
-        className="border p-2 mb-2"
-      />
-      <label htmlFor="password">Password:</label>
-      <input
-        type="password"
-        id="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        placeholder="Password"
-        className="border p-2 mb-2"
-      />
-      
-      <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-        Login
-      </button>
-    </form>
+    <div
+      className="d-flex justify-content-center align-items-center vh-100"
+      style={{
+        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('/lll.png')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
+      <div className="col-md-4 p-4 rounded shadow" style={{ backgroundColor: 'rgba(255, 255, 255, 0.9)' }}>
+        <h2 className="text-center mb-4">Login</h2>
+
+        {error && (
+          <div className="alert alert-danger" role="alert">
+            {error}
+          </div>
+        )}
+
+        {loading && (
+          <div className="spinner-border text-primary mb-3" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit}>
+          <div className="mb-3">
+            <label htmlFor="email" className="form-label">Email:</label>
+            <input
+              type="email"
+              id="email"
+              className="form-control"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="mb-3">
+            <label htmlFor="password" className="form-label">Password:</label>
+            <input
+              type="password"
+              id="password"
+              className="form-control"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+
+          <button type="submit" className="btn btn-primary w-100" disabled={loading}>
+            Login
+          </button>
+        </form>
+
+        <p className="mt-3 text-center text-muted">
+          Don't have an account? <a href="/register">Register</a>
+        </p>
+      </div>
+    </div>
   );
 }
 

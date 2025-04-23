@@ -1,27 +1,22 @@
+// frontend/src/components/Payment.js
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 function Payment({ token, setError }) {
   const [loading, setLoading] = useState(false);
   const [paymentError, setPaymentError] = useState(null);
-  const { amount } = useParams();
-  const { appointmentId } = useParams();
-  const { counselorId } = useParams();
+  const { appointmentId, amount, counselorId } = useParams();
+
   const handlePayment = async (event) => {
     event.preventDefault();
     setLoading(true);
     setPaymentError(null);
 
     try {
-      const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/payments/checkout`; // Use /payments/checkout endpoint
+      const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/payments/checkout`;
 
-      console.log({
-        client: appointmentId,
-        counselor: counselorId,
-        amount: amount,
-        paymentMethod: 'Credit Card',
-      })
-      console.log("1")
       const response = await axios.post(apiUrl, {
         client: appointmentId,
         counselor: counselorId,
@@ -29,13 +24,12 @@ function Payment({ token, setError }) {
         paymentMethod: 'Credit Card',
       }, {
         headers: {
-          Authorization: `Bearer ${token}`, // Include authorization header
+          Authorization: `Bearer ${token}`,
         },
       });
 
-      console.log("1")
       const { url } = response.data;
-      window.location.assign(url); // Redirect to Stripe Checkout
+      window.location.assign(url);
 
     } catch (err) {
       console.error(err);
@@ -50,30 +44,29 @@ function Payment({ token, setError }) {
       setLoading(false);
     }
   };
+
   if (loading) {
-    return <div>Loading...</div>;
+    return <div className="d-flex justify-content-center mt-5"><div className="spinner-border text-primary" role="status"><span className="visually-hidden">Loading...</span></div></div>;
   }
 
-  if (paymentError) { // Check local error state
-    return <div style={{ color: 'red' }}>{paymentError}</div>;
+  if (paymentError) {
+    return <div className="container mt-5 alert alert-danger" role="alert">{paymentError}</div>;
   }
 
- return (
-  <form onSubmit={handlePayment} className="flex justify-center mt-6">
-    <button
-      type="submit"
-      disabled={loading}
-      className={`px-6 py-3 rounded-xl font-semibold transition duration-300 
-        ${loading 
-          ? "bg-gray-400 cursor-not-allowed" 
-          : "bg-indigo-600 hover:bg-indigo-700 text-white shadow-md hover:shadow-lg"
-        }`}
-    >
-      {loading ? "Processing..." : "Pay Now"}
-    </button>
-  </form>
-);
-
+  return (
+    <div className="container mt-5">
+      <h2 className="mb-4">Payment</h2>
+      <p className="lead mb-3">You are about to pay ${amount} for your session.</p>
+      <form onSubmit={handlePayment} className="d-flex justify-content-center">
+        <button
+          type="submit"
+          className={`btn btn-success btn-lg ${loading ? 'disabled' : ''}`}
+        >
+          {loading ? "Processing..." : "Pay Now"}
+        </button>
+      </form>
+    </div>
+  );
 }
 
 export default Payment;

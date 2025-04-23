@@ -3,35 +3,38 @@ import { Link } from 'react-router-dom';
 
 function HomePage() {
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-r from-blue-100 to-purple-100">
-      <h1 className="text-4xl font-bold mb-4 text-blue-700">
-        Welcome to Our Counseling Platform
-      </h1>
-      <p className="text-lg text-gray-700 mb-6 text-center">
-        We provide professional counseling services to help you navigate life's challenges.
-        Connect with experienced counselors and find the support you need.
-      </p>
-      <div className="flex space-x-4">
-        <Link
-          to="/login"
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300"
-        >
-          Login
-        </Link>
-        <Link
-          to="/register"
-          className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition duration-300"
-        >
-          Register
-        </Link>
-      </div>
-      <div className="mt-8">
-        <Link to="/about" className="text-blue-500 hover:underline mr-4">
-          About Us
-        </Link>
-        <Link to="/contact" className="text-blue-500 hover:underline">
-          Contact Us
-        </Link>
+    <div 
+      className="d-flex align-items-center justify-content-center vh-100 w-100"
+      style={{
+        backgroundImage: "url('/lll.png')", // Replace with your actual image path
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        minHeight: "100vh",
+        width: "100vw",
+      }}
+    >
+      <div className="container mt-5">
+        <div className="row justify-content-center">
+          <div className="col-md-8 text-center">
+            <h1 className="display-4 mb-4">Welcome to Our Counseling Platform</h1>
+            <p className="lead mb-5">
+              We provide professional counseling services to help you navigate
+              life's challenges. Connect with experienced counselors and find the
+              support you need.
+            </p>
+            <div className="d-grid gap-3 d-sm-flex justify-content-sm-center">
+              <Link to="/login" className="btn btn-primary btn-lg px-4 gap-3">Login</Link>
+              <Link to="/register" className="btn btn-outline-secondary btn-lg px-4">Register</Link>
+            </div>
+            <div className="mt-4">
+              <p className="text-muted">
+                <Link to="/about" className="me-3">About Us</Link>
+                <Link to="/contact">Contact Us</Link>
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
