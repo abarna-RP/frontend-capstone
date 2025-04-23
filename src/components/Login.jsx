@@ -33,8 +33,10 @@ function Login() {
 
     try {
       console.log("Sending login data:", { email: trimmedEmail, password: trimmedPassword });
-
-      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/login`, {
+      
+      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/login`
+        
+, {
         email: trimmedEmail,
         password: trimmedPassword
       });
@@ -43,6 +45,7 @@ function Login() {
       localStorage.setItem('role', response.data.role);
       localStorage.setItem('userId', response.data.userId);
       localStorage.setItem('username', response.data.username);
+
 
       navigate('/' + response.data.role);
     } catch (apiError) {
