@@ -45,7 +45,7 @@ function Login() {
       localStorage.setItem('role', response.data.role);
       localStorage.setItem('userId', response.data.userId);
       localStorage.setItem('username', response.data.username);
-
+      window.dispatchEvent(new Event('authChange'));
 
       navigate('/' + response.data.role);
     } catch (apiError) {

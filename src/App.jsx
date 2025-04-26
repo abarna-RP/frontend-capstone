@@ -73,17 +73,17 @@ function App() {
           <Route
             path="/counselor"
             element={
-              <ProtectedRoute requiredRole="counselor">
+            //  <ProtectedRoute requiredRole="counselor">
                 <Counselor />
-              </ProtectedRoute>
+             // </ProtectedRoute>
             }
           />
           <Route
             path="/client"
             element={
-              <ProtectedRoute requiredRole="client">
+              //<ProtectedRoute requiredRole="client">
                 <Client />
-              </ProtectedRoute>
+             // </ProtectedRoute>
             }
           />
           <Route
