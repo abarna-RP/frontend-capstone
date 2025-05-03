@@ -15,6 +15,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Logout from "./components/Logout";
+import MyAppointments from "./components/MyAppointments";
 
 // Stripe setup
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_KEY);
@@ -117,7 +118,9 @@ function App() {
                 <VideoCall />
               </ProtectedRoute>
             }
+
           />
+          <Route path="/myappointments" element={<MyAppointments />} />
         </Routes>
 
       </div>

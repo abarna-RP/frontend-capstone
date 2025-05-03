@@ -72,7 +72,7 @@ function Appointment() {
 
       setSuccess(true);
       setLoading(false);
-      setTimeout(() => navigate('/client'), 2000);
+      setTimeout(() => navigate('/myappointments'), 2000);
     } catch (apiError) {
       console.error('Error booking appointment:', apiError);
       setError(apiError.response?.data?.error || 'Failed to book appointment. Please try again.');
