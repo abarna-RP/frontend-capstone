@@ -53,7 +53,7 @@ function App() {
       );
     }
     if (error) return <div className="alert alert-danger">{error}</div>;
-
+   console.log(isAuthenticated)
     // Role-based route protection
     if (!isAuthenticated) return <Navigate to="/login" />;
     if (requiredRole && role !== requiredRole) return <Navigate to="/login" />;
