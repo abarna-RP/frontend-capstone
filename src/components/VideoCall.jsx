@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import 'bootstrap/dist/css/bootstrap.min.css';
 
 function VideoCall() {
-  const [meetLink, setMeetLink] = useState('');
+  // const [meetLink, setMeetLink] = useState('');
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
 
@@ -15,51 +14,47 @@ function VideoCall() {
 
     try {
       setLoading(true);
-      const summary = 'Online Meeting';
-      const startTime = new Date();
-      const endTime = new Date(startTime.getTime() + 30 * 60000); // 30 minutes
+      // Your backend currently creates a static event on oauth2callback,
+      // so here just redirect the user to your backend root URL for login
+      // Or you can create a dedicated endpoint for dynamic event creation.
 
-      const { data } = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/create-meet`, {
-        params: {
-          summary,
-          startTime,
-          endTime,
-          attendeeEmail: email,
-        },
-      });
+      // For now, let's call your root endpoint to get login URL
+      const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/`);
+      // Redirect user to the Google OAuth login
+      window.location.href = response.data.match(/href="([^"]*)"/)[1]; 
+      // Once user authenticates, your backend creates the Meet event and sends the link.
 
-
-      setMeetLink(data.meetLink);
     } catch (error) {
-      console.error('Error creating Google Meet link:', error);
-      alert('Failed to create meeting. Please try again.');
+      console.error('Error initiating login:', error);
+      alert('Failed to start Google login. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="container mt-5 text-center">
-      <h2 className="mb-4">Google Meet Integration</h2>
+    <div className="min-h-screen flex flex-col justify-center items-center bg-gray-50 p-6">
+      <h2 className="text-3xl font-semibold mb-8 text-gray-800">Google Meet Integration</h2>
+
       <input
         type="email"
         placeholder="Enter attendee email"
-        className="form-control mb-3"
+        className="w-full max-w-md p-3 mb-6 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
       />
-      <button className="btn btn-primary" onClick={createMeet} disabled={loading}>
-        {loading ? 'Creating Meeting...' : 'Create Google Meet'}
+
+      <button
+        onClick={createMeet}
+        disabled={loading}
+        className={`w-full max-w-md py-3 rounded-md text-white font-medium ${
+          loading ? 'bg-blue-300 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
+        }`}
+      >
+        {loading ? 'Starting Google Login...' : 'Create Google Meet'}
       </button>
 
-      {meetLink && (
-        <div className="mt-4">
-          <p>Meeting created successfully!</p>
-          <a href={meetLink} target="_blank" rel="noopener noreferrer" className="btn btn-success">
-            Join Google Meet
-          </a>
-        </div>
-      )}
+      
     </div>
   );
 }
