@@ -19,6 +19,7 @@ function VideoCall() {
       // Or you can create a dedicated endpoint for dynamic event creation.
 
       // For now, let's call your root endpoint to get login URL
+      console.log(import.meta.env.VITE_API_BASE_URL)
       const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/`);
       // Redirect user to the Google OAuth login
       window.location.href = response.data.match(/href="([^"]*)"/)[1]; 
