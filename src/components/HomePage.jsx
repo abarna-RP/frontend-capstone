@@ -1,7 +1,15 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
 function HomePage() {
+const navigate = useNavigate()
+
+  useEffect(() => {
+    const storedUsername = localStorage.getItem("username");
+    console.log(storedUsername)
+    storedUsername && navigate("client")
+  }, [])
+
   return (
     <div 
       className="d-flex align-items-center justify-content-center vh-100 w-100"
